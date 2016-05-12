@@ -6,53 +6,38 @@ import credentials
 import filewriter
 
 from pprint import pprint
-from listManipulation import compareList, compressList, removeZero
+from listManipulation import compare_list, compress_list, removeZero
 from wallet import getWallet
+from inventory import getInventory
 
+INVENTORYFILENAME = 'inventoryData.txt'
+WALLETFILENAME = 'walletData.txt'
 API2_URL = 'https://api.guildwars2.com/v2'
 CHARACTER = credentials.CHARACTER
-scope_url = '/characters/' + CHARACTER + '/Inventory'
 key = credentials.key
 encoded_key = urllib.urlencode(key)
-full_url = API2_URL + scope_url + '?' + encoded_key
-response = urllib2.urlopen(full_url)
-the_page = response.read()
-json_data = json.loads(the_page)
-bags = json_data['bags']
 
-filtered = []
-for bag in bags:
-    for item in bag['inventory']:
-        if item != None:
-            filtered.append(item)
-                  
-#Filters out everything except 'count' and 'id'
-for attribute in filtered:
-     attribute.pop('binding', None)
-     attribute.pop('skin', None)
-     attribute.pop('upgrades', None)
-     attribute.pop('bound_to', None)
-
-#Compress list of items have duplicate id
-compresesd_list = []
-compressed_list = compressList(filtered)
-
-file = filewriter.FileWriter('writefile.txt')
+#Inventory Data
+inventory_data = getInventory(API2_URL, encoded_key, CHARACTER)
+inventory_file = filewriter.FileWriter(INVENTORYFILENAME)
 
 try:
-    #Try reading previous snapshot
-    data = file.readFromFile()
+    #Try reading previous inventory snapshot
+    data = inventory_file.readFromFile()
 
-    #Compare snapshots
+    #Compare inventory snapshots
     delta_list = []
-    delta_list = compareList(data, compressed_list)
+    delta_list = compare_list(data, inventory_data)
     delta_list = removeZero(delta_list)
     pprint(delta_list)
     
 except:
-    print "No snapshot found"
+    print "No inventory snapshot found"
 
-#Update the snapshot
-file.writeToFile(compressed_list)
+#Update the inventory snapshot
+inventory_file.writeToFile(inventory_data)
 
-getWallet(API2_URL, key)
+#Wallet Data
+wallet_data = getWallet(API2_URL, encoded_key)
+wallet_file = filewriter.FileWriter(WALLETFILENAME)
+wallet_file.writeToFile(wallet_data)

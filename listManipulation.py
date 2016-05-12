@@ -1,7 +1,7 @@
 import copy
 
 #Compare snapshots
-def compareList( list1, list2 ):
+def compare_list( list1, list2 ):
     delta_list = copy.deepcopy(list2)
     for item1 in list1:
         flag = 0;
@@ -15,7 +15,7 @@ def compareList( list1, list2 ):
     return delta_list
 
 #Compress list of items have duplicate id
-def compressList( list1):
+def compress_list( list1):
     compressed_list = []
     for item in list1:
         flag = 0
