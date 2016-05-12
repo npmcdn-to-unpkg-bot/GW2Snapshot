@@ -3,9 +3,9 @@ import urllib2
 import json
 
 import credentials
+import filewriter
 
 from pprint import pprint
-from filewriter import writeToFile, readFromFile
 from listManipulation import compareList, compressList, removeZero
 from wallet import getWallet
 
@@ -37,9 +37,11 @@ for attribute in filtered:
 compresesd_list = []
 compressed_list = compressList(filtered)
 
+file = filewriter.FileWriter('writefile.txt')
+
 try:
     #Try reading previous snapshot
-    data = readFromFile()
+    data = file.readFromFile()
 
     #Compare snapshots
     delta_list = []
@@ -48,9 +50,9 @@ try:
     pprint(delta_list)
     
 except:
-    "No snapshot found"
+    print "No snapshot found"
 
 #Update the snapshot
-writeToFile(compressed_list)
+file.writeToFile(compressed_list)
 
 getWallet(API2_URL, key)
