@@ -2,7 +2,7 @@ import urllib
 import urllib2
 import json
 
-from listManipulation import compare_list, compress_list, removeZero
+from listManipulation import compress_list, removeZero
 from pprint import pprint
 
 def getInventory(API2_URL, encoded_key, CHARACTER):
