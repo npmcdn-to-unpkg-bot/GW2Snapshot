@@ -1,15 +1,18 @@
 import urllib
 import urllib2
 import json
+
+import credentials
+
 from pprint import pprint
 from filewriter import writeToFile, readFromFile
 from listManipulation import compareList, compressList, removeZero
 from wallet import getWallet
 
 API2_URL = 'https://api.guildwars2.com/v2'
-CHARACTER = ''
+CHARACTER = credentials.CHARACTER
 scope_url = '/characters/' + CHARACTER + '/Inventory'
-key = ''
+key = credentials.key
 encoded_key = urllib.urlencode(key)
 full_url = API2_URL + scope_url + '?' + encoded_key
 response = urllib2.urlopen(full_url)
