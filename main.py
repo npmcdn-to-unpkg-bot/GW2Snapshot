@@ -9,9 +9,11 @@ from pprint import pprint
 from listManipulation import *
 from wallet import getWallet
 from inventory import getInventory
+from bank import get_bank
 
 INVENTORYFILENAME = 'inventoryData.txt'
 WALLETFILENAME = 'walletData.txt'
+BANKFILENAME = 'bankData.txt'
 API2_URL = 'https://api.guildwars2.com/v2'
 CHARACTER = credentials.CHARACTER
 key = credentials.key
@@ -56,3 +58,23 @@ except:
     
 #Update the wallet snapshot    
 wallet_file.writeToFile(wallet_data)
+
+#Bank Data
+bank_data = get_bank(API2_URL, encoded_key)
+bank_file = filewriter.FileWriter(BANKFILENAME)
+
+try:
+    #Try reading previous wallet snapshot
+    old_bank_data = bank_file.readFromFile()
+    
+    #Compare wallet snapshots
+    delta_list = []
+    delta_list = compare_inventory(old_bank_data, bank_data)
+    delta_list = remove_zero_count(delta_list)
+    pprint(delta_list)
+    
+except:
+    print "No bank snapshot found"
+    
+#Update the wallet snapshot    
+bank_file.writeToFile(bank_data)
