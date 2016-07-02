@@ -7,7 +7,7 @@ import filewriter
 
 from pprint import pprint
 from listManipulation import *
-from wallet import getWallet
+from wallet import getWallet, walletIDToName
 from inventory import getInventory
 from bank import get_bank
 
@@ -27,8 +27,10 @@ def get_snapshot():
     key = {'access_token' : request.form['apiKey']}
     encoded_key = urllib.urlencode(key)
     wallet_data = getWallet(API2_URL, encoded_key)
-    print type(wallet_data)
-    resp = make_response(render_template('snapshot.html', wallet=json.loads(wallet_data)))
+    walletJSON = json.loads(wallet_data)
+    for currency in walletJSON:
+        currency['id'] = walletIDToName(API2_URL, currency['id'])
+    resp = make_response(render_template('snapshot.html', wallet=walletJSON))
     pprint(wallet_data)
     resp.set_cookie('key', encoded_key)
     resp.set_cookie('wallet_data', wallet_data)
@@ -40,12 +42,11 @@ def retake_snapshot():
     old_wallet_data = request.cookies.get('wallet_data')
     new_wallet_data = getWallet(API2_URL, encoded_key)
     delta_list = []
-    pprint(old_wallet_data)
-    pprint(new_wallet_data)
     old_wallet_data = json.loads(old_wallet_data)
     new_wallet_data = json.loads(new_wallet_data)
     delta_list = compare_wallet(old_wallet_data, new_wallet_data)
     delta_list = remove_zero_value(delta_list)
-    pprint(delta_list)
+    for currency in delta_list:
+        currency['id'] = walletIDToName(API2_URL, currency['id'])
     resp = make_response(render_template('results.html',dlist=delta_list, new_list=new_wallet_data))
     return resp
