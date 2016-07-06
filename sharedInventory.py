@@ -9,4 +9,4 @@ def getSharedInventory(API2_URL, encoded_key):
     response = urllib2.urlopen(full_url)
     the_page = response.read()
     shared_inventory_data = json.loads(the_page)
-    return shared_inventory_data
+    return [x for x in shared_inventory_data if x is not None]

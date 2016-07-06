@@ -11,7 +11,7 @@ def compare_inventory( list1, list2 ):
                 flag = 1
                 break
         if flag == 0:
-            delta_list.append({'count': item1['count'], 'id': -item1['id']})
+            delta_list.append({'count': -item1['count'], 'id': item1['id']})
     return delta_list
 
 #Compare wallet snapshots
@@ -25,7 +25,7 @@ def compare_wallet( list1, list2 ):
                 flag = 1
                 break
         if flag == 0:
-            delta_list.append({'value': item1['value'], 'id': -item1['id']})
+            delta_list.append({'value': -item1['value'], 'id': item1['id']})
     return delta_list
 
 #Compress list of items have duplicate id
@@ -56,7 +56,7 @@ def remove_zero_value(list1):
             nonZeroList.append(item)
     return nonZeroList       
     
-def mergelist(a, b):
-    c = a + b
-    c = copy.deepcopy(c)
-    return c
+def mergelist(a, b, c, d):
+    e = a + b + c + d
+    e = copy.deepcopy(e)
+    return e

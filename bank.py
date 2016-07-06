@@ -21,7 +21,7 @@ def get_bank(API2_URL, encoded_key):
     #Filters out everything except 'count' and 'id'
     for attribute in filtered:
          attribute.pop('binding', None)
-         attribute.pop('infusion', None)
+         attribute.pop('infusions', None)
          attribute.pop('skin', None)
          attribute.pop('upgrades', None)
          attribute.pop('bound_to', None)

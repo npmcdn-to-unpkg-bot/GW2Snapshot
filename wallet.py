@@ -18,9 +18,8 @@ def getWallet(API2_URL, encoded_key):
             print "Something happened! Error code", err.code
     except urllib2.URLError, err:
         print "Some other error happened:", err.reason
-    #wallet_data = json.loads(the_page)
-    #return wallet_data
-    return the_page
+    wallet_data = json.loads(the_page)
+    return wallet_data
 
 def walletIDToName(API2_URL, walletID):
     scope_url = '/currencies/'

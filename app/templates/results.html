@@ -1,8 +1,9 @@
 {% extends "layout.html" %} {% block content %}
 <!-- Page Content -->
 <div class="container">
+    <h1>Items Gained/Lost</h1>
     <div class="row">
-        <h1>Items Gained/Lost</h1>
+        <h2>Wallet</h2>
         <table class="table">
             <thead>
                 <tr>
@@ -10,10 +11,43 @@
                     <th>Count</th>
                 </tr>
             </thead>
-            <tbody> {% for item in dlist %}
+            <tbody> {% for item in wallet_delta_list %}
                 <tr>
                     <td>{{item['id']}}</td>
                     <td>{{item['value']}}</td>
                 </tr> {% endfor %} </tbody>
         </table>
-        <!-- /.container -->{% endblock %}
+    </div>
+    <div class="row">
+        <h2>Bank</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Count</th>
+                </tr>
+            </thead>
+            <tbody> {% for item in bank_delta_list %}
+                <tr>
+                    <td>{{item['id']}}</td>
+                    <td>{{item['count']}}</td>
+                </tr> {% endfor %} </tbody>
+        </table>
+    </div>
+    <div class="row">
+        <h2>Shared</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Count</th>
+                </tr>
+            </thead>
+            <tbody> {% for item in shared_delta_list %}
+                <tr>
+                    <td>{{item['id']}}</td>
+                    <td>{{item['count']}}</td>
+                </tr> {% endfor %} </tbody>
+        </table>
+    </div>
+    <!-- /.container -->{% endblock %}
