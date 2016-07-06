@@ -12,10 +12,9 @@ from inventory import getInventory
 from bank import get_bank
 
 from app import app
-from flask import Blueprint, render_template, request, make_response
+from flask import Blueprint, render_template, request, make_response, flash
 
 API2_URL = 'https://api.guildwars2.com/v2'
-key = ''
 
 @app.route('/')
 @app.route('/index')
@@ -27,6 +26,8 @@ def get_snapshot():
     key = {'access_token' : request.form['apiKey']}
     encoded_key = urllib.urlencode(key)
     wallet_data = getWallet(API2_URL, encoded_key)
+    if wallet_data == "Access denied!":
+        return render_template('index.html',error='Access denied!')
     walletJSON = json.loads(wallet_data)
     for currency in walletJSON:
         currency['id'] = walletIDToName(API2_URL, currency['id'])
