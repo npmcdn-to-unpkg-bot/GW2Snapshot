@@ -55,3 +55,8 @@ def remove_zero_value(list1):
         if item['value'] != 0:
             nonZeroList.append(item)
     return nonZeroList       
+    
+def mergelist(a, b):
+    c = a + b
+    c = copy.deepcopy(c)
+    return c

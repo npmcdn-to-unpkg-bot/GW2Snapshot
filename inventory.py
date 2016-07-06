@@ -32,3 +32,28 @@ def getInventory(API2_URL, encoded_key, CHARACTER):
     compressed_list = compress_list(filtered)
     
     return compressed_list
+
+def getAllInventory(API2_URL, encoded_key):
+full_url = API2_URL + '/characters?page=0&&' + encoded_key
+response = urllib2.urlopen(full_url)
+the_page = response.read()
+characters_data = json.loads(the_page)
+
+filtered = []
+for character in characters_data:
+    for bags in character['bags']:
+        for item in bags['inventory']:
+            if item != None:
+                filtered.append(item)
+                
+#Filters out everything except 'count' and 'id'
+    	for attribute in filtered:
+         attribute.pop('binding', None)
+         attribute.pop('skin', None)
+         attribute.pop('upgrades', None)
+         attribute.pop('bound_to', None)
+    
+    	#Compress list of items have duplicate id
+    	compresesd_list = []
+    	compressed_list = compress_list(filtered)
+    	return compressed_list
