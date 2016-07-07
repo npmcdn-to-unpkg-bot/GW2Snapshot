@@ -1,4 +1,5 @@
 from flask import Flask
 
 app = Flask(__name__)
+app.secret_key ='\xaf\xa6Q~\xd3\x88\xaa?k\xb5\xdd\xd0\x0c\x05\x93\x04\x16~\t\x8b\x90\xa9\x1dD'
 from app import views

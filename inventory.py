@@ -63,7 +63,6 @@ def getAllInventory(API2_URL, encoded_key):
 def itemIDToName(API2_URL, walletID):
     scope_url = '/items/'
     full_url = API2_URL + scope_url + str(walletID)
-    print full_url
     response = urllib2.urlopen(full_url)
     the_page = response.read()
     currencyJSON = json.loads(the_page)
