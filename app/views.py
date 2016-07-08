@@ -9,7 +9,7 @@ import time
 from pprint import pprint
 from listManipulation import *
 from wallet import getWallet, walletIDToName
-from inventory import getAllInventory, itemIDToName
+from inventory import *
 from bank import get_bank
 from sharedInventory import getSharedInventory 
 from material import getMaterials
@@ -32,7 +32,8 @@ def get_snapshot():
     walletJSON = getWallet(API2_URL, encoded_key)
     if walletJSON == "Access denied!":
         return render_template('index.html',error='Access denied!')
-    inventoryJSON = getAllInventory(API2_URL, encoded_key)
+    character_names = getCharacterNames(API2_URL, encoded_key)
+    inventoryJSONList = getAllInventory2(API2_URL, encoded_key, character_names)
     bankJSON = get_bank(API2_URL, encoded_key)
     sharedJSON = getSharedInventory(API2_URL, encoded_key)
     materialsJSON = getMaterials(API2_URL, encoded_key)
@@ -44,6 +45,9 @@ def get_snapshot():
     session['materials38'] = materialsJSON[5]
     session['materials46'] = materialsJSON[6]
     resp = make_response(render_template('snapshot.html', wallet=walletJSON))
+    for character, inventoryJSON in zip(character_names, inventoryJSONList):
+        resp.set_cookie('%s' % character.replace(" ", "_"), inventoryJSON)
+    session['characters'] = character_names
     resp.set_cookie('key', request.form['apiKey'])
     resp.set_cookie('wallet_data', json.dumps(walletJSON))
     resp.set_cookie('bank_data', json.dumps(bankJSON))
@@ -57,7 +61,9 @@ def retake_snapshot():
     encoded_key = urllib.urlencode(key)
     start_time = request.cookies.get('start_time')
     minutes_elapsed = (time.time()-float(start_time))/60
-    
+    print session['characters']
+    for character in session['characters']:
+        print request.cookies.get('%s' % character.replace(" ", "_"))
     old_wallet_data = request.cookies.get('wallet_data')
     old_bank_data = request.cookies.get('bank_data')
     old_shared_data = request.cookies.get('shared_data')
@@ -73,7 +79,7 @@ def retake_snapshot():
     old_materials37_JSON = session['materials37']
     old_materials38_JSON = session['materials38']
     old_materials46_JSON = session['materials46']
-
+    
     new_wallet_JSON = getWallet(API2_URL, encoded_key)
     new_bank_JSON = get_bank(API2_URL, encoded_key)
     new_shared_JSON = getSharedInventory(API2_URL, encoded_key)
