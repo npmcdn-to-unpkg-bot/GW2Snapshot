@@ -67,3 +67,11 @@ def itemIDToName(API2_URL, walletID):
     the_page = response.read()
     currencyJSON = json.loads(the_page)
     return currencyJSON['name']
+    
+def getCharacterNames(API2_URL, encoded_key):
+    scope_url = '/characters/'
+    full_url = API2_URL + scope_url + '?' + encoded_key
+    response = urllib2.urlopen(full_url)
+    the_page = response.read()
+    character_names = json.loads(the_page)
+    return character_names
