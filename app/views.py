@@ -33,10 +33,15 @@ def get_snapshot():
     if walletJSON == "Access denied!":
         return render_template('index.html',error='Access denied!')
     character_names = getCharacterNames(API2_URL, encoded_key)
+    print '1'
     inventoryJSONList = getAllInventory2(API2_URL, encoded_key, character_names)
+    print '2'
     bankJSON = get_bank(API2_URL, encoded_key)
+    print '3'
     sharedJSON = getSharedInventory(API2_URL, encoded_key)
+    print '4'
     materialsJSON = getMaterials(API2_URL, encoded_key)
+    print '5'
     session['materials5'] = materialsJSON[0]
     session['materials6'] = materialsJSON[1]
     session['materials29'] = materialsJSON[2]
@@ -44,9 +49,14 @@ def get_snapshot():
     session['materials37'] = materialsJSON[4]
     session['materials38'] = materialsJSON[5]
     session['materials46'] = materialsJSON[6]
+    session['bank'] = bankJSON
+    session['shared'] = sharedJSON
+    session['wallet'] = walletJSON
     resp = make_response(render_template('snapshot.html', wallet=walletJSON))
+    print '6'
     for character, inventoryJSON in zip(character_names, inventoryJSONList):
         resp.set_cookie('%s' % character.replace(" ", "_"), inventoryJSON)
+    print '7'
     session['characters'] = character_names
     resp.set_cookie('key', request.form['apiKey'])
     resp.set_cookie('wallet_data', json.dumps(walletJSON))
