@@ -5,8 +5,9 @@ import json
 from listManipulation import compress_list, remove_zero_count
 from pprint import pprint
 
-def getInventory(API2_URL, encoded_key, CHARACTER):
-    scope_url = '/characters/' + CHARACTER + '/Inventory'
+def getInventory(API2_URL, encoded_key, character):
+    character = urllib.quote(character)
+    scope_url = '/characters/' + character + '/Inventory'
     inventory_data = []
     full_url = API2_URL + scope_url + '?' + encoded_key
     response = urllib2.urlopen(full_url)
