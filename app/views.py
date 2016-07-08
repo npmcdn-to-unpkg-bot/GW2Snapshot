@@ -27,6 +27,7 @@ def index():
 @app.route('/snapshot', methods=['POST'])
 def get_snapshot():
     key = {'access_token' : request.form['apiKey']}
+    print request.form['apiKey']
     encoded_key = urllib.urlencode(key)
     walletJSON = getWallet(API2_URL, encoded_key)
     if walletJSON == "Access denied!":
@@ -42,8 +43,6 @@ def get_snapshot():
     session['materials37'] = materialsJSON[4]
     session['materials38'] = materialsJSON[5]
     session['materials46'] = materialsJSON[6]
-    for materials in materialsJSON:
-        print sys.getsizeof(materials)
     resp = make_response(render_template('snapshot.html', wallet=walletJSON))
     resp.set_cookie('key', request.form['apiKey'])
     resp.set_cookie('wallet_data', json.dumps(walletJSON))
