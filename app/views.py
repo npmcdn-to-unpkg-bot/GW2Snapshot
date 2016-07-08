@@ -33,15 +33,10 @@ def get_snapshot():
     if walletJSON == "Access denied!":
         return render_template('index.html',error='Access denied!')
     character_names = getCharacterNames(API2_URL, encoded_key)
-    print '1'
     inventoryJSONList = getAllInventory2(API2_URL, encoded_key, character_names)
-    print '2'
     bankJSON = get_bank(API2_URL, encoded_key)
-    print '3'
     sharedJSON = getSharedInventory(API2_URL, encoded_key)
-    print '4'
     materialsJSON = getMaterials(API2_URL, encoded_key)
-    print '5'
     session['materials5'] = materialsJSON[0]
     session['materials6'] = materialsJSON[1]
     session['materials29'] = materialsJSON[2]
@@ -52,16 +47,17 @@ def get_snapshot():
     session['bank'] = bankJSON
     session['shared'] = sharedJSON
     session['wallet'] = walletJSON
+    session['characters'] = character_names
     resp = make_response(render_template('snapshot.html', wallet=walletJSON))
     print '6'
+    for character in character_names:
+        character = character.replace(" ", "_")
+    print character_names
+        
     for character, inventoryJSON in zip(character_names, inventoryJSONList):
-        resp.set_cookie('%s' % character.replace(" ", "_"), inventoryJSON)
+        resp.set_cookie('%s' % (character), inventoryJSON)
     print '7'
-    session['characters'] = character_names
     resp.set_cookie('key', request.form['apiKey'])
-    resp.set_cookie('wallet_data', json.dumps(walletJSON))
-    resp.set_cookie('bank_data', json.dumps(bankJSON))
-    resp.set_cookie('shared_data', json.dumps(sharedJSON))
     resp.set_cookie('start_time', str(time.time()))
     return resp
 
@@ -74,13 +70,10 @@ def retake_snapshot():
     print session['characters']
     for character in session['characters']:
         print request.cookies.get('%s' % character.replace(" ", "_"))
-    old_wallet_data = request.cookies.get('wallet_data')
-    old_bank_data = request.cookies.get('bank_data')
-    old_shared_data = request.cookies.get('shared_data')
     
-    old_wallet_JSON = json.loads(old_wallet_data)
-    old_bank_JSON = json.loads(old_bank_data)
-    old_shared_JSON = json.loads(old_shared_data)
+    old_wallet_JSON = session['wallet']
+    old_bank_JSON = session['bank']
+    old_shared_JSON = session['shared']
     
     old_materials5_JSON = session['materials5']
     old_materials6_JSON = session['materials6']
