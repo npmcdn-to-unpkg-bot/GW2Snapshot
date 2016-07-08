@@ -48,25 +48,26 @@ def get_snapshot():
     session['shared'] = sharedJSON
     session['wallet'] = walletJSON
     session['characters'] = character_names
+    session['time'] = time.time()
     resp = make_response(render_template('snapshot.html', wallet=walletJSON))
     print '6'
+    character_names2 = []
     for character in character_names:
-        character = character.replace(" ", "_")
-    print character_names
+        character_names2.append(character.replace(" ", "_"))
+    print character_names2
         
-    for character, inventoryJSON in zip(character_names, inventoryJSONList):
+    for character, inventoryJSON in zip(character_names2, inventoryJSONList):
         resp.set_cookie('%s' % (character), inventoryJSON)
     print '7'
     resp.set_cookie('key', request.form['apiKey'])
-    resp.set_cookie('start_time', str(time.time()))
     return resp
 
 @app.route('/results', methods=['POST'])
 def retake_snapshot():
     key = {'access_token' : request.cookies.get('key')}
     encoded_key = urllib.urlencode(key)
-    start_time = request.cookies.get('start_time')
-    minutes_elapsed = (time.time()-float(start_time))/60
+    start_time = session['time']
+    minutes_elapsed = (time.time()-start_time)/60
     print session['characters']
     for character in session['characters']:
         print request.cookies.get('%s' % character.replace(" ", "_"))
