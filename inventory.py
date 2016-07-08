@@ -75,3 +75,9 @@ def getCharacterNames(API2_URL, encoded_key):
     the_page = response.read()
     character_names = json.loads(the_page)
     return character_names
+    
+def getAllInventory2(API2_URL, encoded_key, character_names):
+    inventory = []
+    for character in character_names:
+        inventory.append(getInventory(API2_URL, encoded_key, character))
+    return inventory
