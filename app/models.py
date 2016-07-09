@@ -2,8 +2,8 @@ from app import db
 
 class Snapshot(db.Model):
     api_key = db.Column(db.String(128), primary_key=True)
-    inventory = db.Column(db.String(10000))
-    materials = db.Column(db.String(10000))
+    inventory = db.Column(db.String(20000))
+    materials = db.Column(db.String(20000))
 
     def __init__(self, api_key, inventory, materials):
         self.api_key = api_key

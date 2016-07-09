@@ -36,11 +36,12 @@ def get_snapshot():
     
     inventoryJSON = getAllInventory(API2_URL, encoded_key)
     inventory_data = json.dumps(inventoryJSON)
+    assert len(inventory_data) < 20000
     sharedJSON = getSharedInventory(API2_URL, encoded_key)
     bankJSON = get_bank(API2_URL, encoded_key)
     materialsJSON = getMaterials2(API2_URL, encoded_key)
     materials_data = json.dumps(materialsJSON)
-    
+    assert len(materials_data) < 20000
     snapshot = models.Snapshot(request.form['apiKey'], inventory_data, materials_data)
     models.db.session.add(snapshot)
     models.db.session.commit()
