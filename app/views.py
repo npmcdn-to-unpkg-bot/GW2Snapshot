@@ -17,7 +17,7 @@ from material import getMaterials, getMaterials2
 from app import app
 from flask import Blueprint, render_template, request, make_response, flash, session
 from ChunkedCookie import ChunkedSecureCookieSessionInterface
-
+inventory2JSON = []
 API2_URL = 'https://api.guildwars2.com/v2'
 chunked = ChunkedSecureCookieSessionInterface()
 @app.route('/')
@@ -39,16 +39,7 @@ def get_snapshot():
     sharedJSON = getSharedInventory(API2_URL, encoded_key)
     materialsJSON = getMaterials(API2_URL, encoded_key)
   
-    resp = make_response(render_template('snapshot.html', wallet=walletJSON))
-    #character_names2 = []
-    #for character in character_names:
-    #    character_names2.append(character.replace(" ", "_"))
-    #for character, inventoryJSON in zip(character_names2, inventoryJSONList):
-    #    print sys.getsizeof(json.dumps(inventoryJSON))
-    #    assert sys.getsizeof(json.dumps(inventoryJSON)) < 4096
-    #    resp.set_cookie('%s' % (character), json.dumps(inventoryJSON))
-    #    print character 
-    #    print request.cookies.get('%s' % (character))
+    resp = make_response(render_template('snapshot.html'))
     resp.set_cookie('key', request.form['apiKey'])
     resp.set_cookie('materials5', json.dumps(materialsJSON[0]))
     resp.set_cookie('materials6', json.dumps(materialsJSON[1]))
@@ -59,18 +50,12 @@ def get_snapshot():
     resp.set_cookie('materials46', json.dumps(materialsJSON[6]))
                         
     session['inventory'] = inventoryJSON
-    #session['materials5'] = materialsJSON[0]
-    #session['materials6'] = materialsJSON[1]
-    #session['materials29'] = materialsJSON[2]
-    #session['materials30'] = materialsJSON[3]
-    #session['materials37'] = materialsJSON[4]
-    #session['materials38'] = materialsJSON[5]
-    #session['materials46'] = materialsJSON[6]
     session['bank'] = bankJSON
     session['shared'] = sharedJSON
     session['wallet'] = walletJSON
     session['characters'] = character_names
     session['time'] = time.time()
+    
     chunked.save_session(app, session, resp)
     return resp
 
@@ -81,12 +66,12 @@ def retake_snapshot():
     encoded_key = urllib.urlencode(key)
     start_time = session['time']
     minutes_elapsed = (time.time()-start_time)/60
-
+    print '1'
     old_wallet_JSON = session['wallet']
     old_bank_JSON = session['bank']
     old_shared_JSON = session['shared']
     old_inventory_JSON = session['inventory']
-    
+    print '2'
     old_materials5_JSON = json.loads(request.cookies.get('materials5'))
     old_materials6_JSON = json.loads(request.cookies.get('materials6'))
     old_materials29_JSON = json.loads(request.cookies.get('materials29'))
@@ -94,29 +79,19 @@ def retake_snapshot():
     old_materials37_JSON = json.loads(request.cookies.get('materials37'))
     old_materials38_JSON = json.loads(request.cookies.get('materials38'))
     old_materials46_JSON = json.loads(request.cookies.get('materials46'))
-    #old_materials6_JSON = session['materials6']
-    #old_materials29_JSON = session['materials29']
-    #old_materials30_JSON = session['materials30']
-    #old_materials37_JSON = session['materials37']
-    #old_materials38_JSON = session['materials38']
-    #old_materials46_JSON = session['materials46']
-    
+    print '3'
     new_wallet_JSON = getWallet(API2_URL, encoded_key)
     new_bank_JSON = get_bank(API2_URL, encoded_key)
     new_shared_JSON = getSharedInventory(API2_URL, encoded_key)
     new_materials_JSON = getMaterials(API2_URL, encoded_key)
     new_inventory_JSON = getAllInventory(API2_URL, encoded_key)
-    inventory_delta_list = []
+    print '4'
+    
     wallet_delta_list = []
-    bank_delta_list = []
+    inventory_delta_list = []
     shared_delta_list = []
-    materials5_delta_list = []
-    materials6_delta_list = []
-    materials29_delta_list = []
-    materials30_delta_list = []
-    materials37_delta_list = []
-    materials38_delta_list = []
-    materials46_delta_list = []
+    bank_delta_list = []
+    
     materials_delta_list = []
     materials_delta_list.append(compare_inventory(old_materials5_JSON, new_materials_JSON[0]))
     materials_delta_list.append(compare_inventory(old_materials6_JSON, new_materials_JSON[1]))
@@ -128,17 +103,17 @@ def retake_snapshot():
     materials_delta_list2 = []
     for materials in materials_delta_list:
         materials_delta_list2.append(remove_zero_count(materials))
-    inventory_delta_list = compare_inventory(old_inventory_JSON, new_inventory_JSON)
-    inventory_delta_list = remove_zero_count(inventory_delta_list)
-    
+    print '5'
     wallet_delta_list = compare_wallet(old_wallet_JSON, new_wallet_JSON)
-    wallet_delta_list = remove_zero_value(wallet_delta_list)
-    
-    bank_delta_list = compare_inventory(old_bank_JSON, new_bank_JSON)
-    bank_delta_list = remove_zero_count(bank_delta_list)
-
+    inventory_delta_list = compare_inventory(old_inventory_JSON, new_inventory_JSON)
     shared_delta_list = compare_inventory(old_shared_JSON, new_shared_JSON)
+    bank_delta_list = compare_inventory(old_bank_JSON, new_bank_JSON)
+    print '6'
+    wallet_delta_list = remove_zero_value(wallet_delta_list)
+    inventory_delta_list = remove_zero_count(inventory_delta_list)
     shared_delta_list = remove_zero_count(shared_delta_list)
+    bank_delta_list = remove_zero_count(bank_delta_list)
+    print '7'
     for materials in materials_delta_list2:
         for item in materials:
             item['id'] = itemIDToName(API2_URL, item['id'])       
@@ -150,7 +125,21 @@ def retake_snapshot():
         item['id'] = itemIDToName(API2_URL, item['id'])
     for item in inventory_delta_list:
         item['id'] = itemIDToName(API2_URL, item['id'])
+        
     resp = make_response(render_template('results.html',materials_delta_list=materials_delta_list2, minutes_elapsed=minutes_elapsed, wallet_delta_list=wallet_delta_list, bank_delta_list=bank_delta_list, shared_delta_list=shared_delta_list, inventory=inventory_delta_list))
+    resp.set_cookie('materials5', expires=0)
+    resp.set_cookie('materials6', expires=0)
+    resp.set_cookie('materials29', expires=0)
+    resp.set_cookie('materials30', expires=0)
+    resp.set_cookie('materials37', expires=0)
+    resp.set_cookie('materials38', expires=0)
+    resp.set_cookie('materials46', expires=0)
+    session.pop('inventory', None)
+    session.pop('bank', None)
+    session.pop('shared', None)
+    session.pop('wallet', None)
+    session.pop('characters', None)
+    session.pop('time', None)
     return resp
 
 
