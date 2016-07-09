@@ -12,13 +12,14 @@ from wallet import getWallet, walletIDToName
 from inventory import *
 from bank import get_bank
 from sharedInventory import getSharedInventory 
-from material import getMaterials
+from material import getMaterials, getMaterials2
 
 from app import app
 from flask import Blueprint, render_template, request, make_response, flash, session
+from ChunkedCookie import ChunkedSecureCookieSessionInterface
 
 API2_URL = 'https://api.guildwars2.com/v2'
-
+chunked = ChunkedSecureCookieSessionInterface()
 @app.route('/')
 @app.route('/index')
 def index():
@@ -33,62 +34,79 @@ def get_snapshot():
     if walletJSON == "Access denied!":
         return render_template('index.html',error='Access denied!')
     character_names = getCharacterNames(API2_URL, encoded_key)
-    inventoryJSONList = getAllInventory2(API2_URL, encoded_key, character_names)
+    inventoryJSON = getAllInventory(API2_URL, encoded_key)
     bankJSON = get_bank(API2_URL, encoded_key)
     sharedJSON = getSharedInventory(API2_URL, encoded_key)
     materialsJSON = getMaterials(API2_URL, encoded_key)
-    session['materials5'] = materialsJSON[0]
-    session['materials6'] = materialsJSON[1]
-    session['materials29'] = materialsJSON[2]
-    session['materials30'] = materialsJSON[3]
-    session['materials37'] = materialsJSON[4]
-    session['materials38'] = materialsJSON[5]
-    session['materials46'] = materialsJSON[6]
+  
+    resp = make_response(render_template('snapshot.html', wallet=walletJSON))
+    #character_names2 = []
+    #for character in character_names:
+    #    character_names2.append(character.replace(" ", "_"))
+    #for character, inventoryJSON in zip(character_names2, inventoryJSONList):
+    #    print sys.getsizeof(json.dumps(inventoryJSON))
+    #    assert sys.getsizeof(json.dumps(inventoryJSON)) < 4096
+    #    resp.set_cookie('%s' % (character), json.dumps(inventoryJSON))
+    #    print character 
+    #    print request.cookies.get('%s' % (character))
+    resp.set_cookie('key', request.form['apiKey'])
+    resp.set_cookie('materials5', json.dumps(materialsJSON[0]))
+    resp.set_cookie('materials6', json.dumps(materialsJSON[1]))
+    resp.set_cookie('materials29', json.dumps(materialsJSON[2]))
+    resp.set_cookie('materials30', json.dumps(materialsJSON[3]))
+    resp.set_cookie('materials37', json.dumps(materialsJSON[4]))
+    resp.set_cookie('materials38', json.dumps(materialsJSON[5]))
+    resp.set_cookie('materials46', json.dumps(materialsJSON[6]))
+                        
+    session['inventory'] = inventoryJSON
+    #session['materials5'] = materialsJSON[0]
+    #session['materials6'] = materialsJSON[1]
+    #session['materials29'] = materialsJSON[2]
+    #session['materials30'] = materialsJSON[3]
+    #session['materials37'] = materialsJSON[4]
+    #session['materials38'] = materialsJSON[5]
+    #session['materials46'] = materialsJSON[6]
     session['bank'] = bankJSON
     session['shared'] = sharedJSON
     session['wallet'] = walletJSON
     session['characters'] = character_names
     session['time'] = time.time()
-    resp = make_response(render_template('snapshot.html', wallet=walletJSON))
-    print '6'
-    character_names2 = []
-    for character in character_names:
-        character_names2.append(character.replace(" ", "_"))
-    print character_names2
-        
-    for character, inventoryJSON in zip(character_names2, inventoryJSONList):
-        resp.set_cookie('%s' % (character), inventoryJSON)
-    print '7'
-    resp.set_cookie('key', request.form['apiKey'])
+    chunked.save_session(app, session, resp)
     return resp
 
 @app.route('/results', methods=['POST'])
 def retake_snapshot():
+    chunked.open_session(app, request)
     key = {'access_token' : request.cookies.get('key')}
     encoded_key = urllib.urlencode(key)
     start_time = session['time']
     minutes_elapsed = (time.time()-start_time)/60
-    print session['characters']
-    for character in session['characters']:
-        print request.cookies.get('%s' % character.replace(" ", "_"))
-    
+
     old_wallet_JSON = session['wallet']
     old_bank_JSON = session['bank']
     old_shared_JSON = session['shared']
+    old_inventory_JSON = session['inventory']
     
-    old_materials5_JSON = session['materials5']
-    old_materials6_JSON = session['materials6']
-    old_materials29_JSON = session['materials29']
-    old_materials30_JSON = session['materials30']
-    old_materials37_JSON = session['materials37']
-    old_materials38_JSON = session['materials38']
-    old_materials46_JSON = session['materials46']
+    old_materials5_JSON = json.loads(request.cookies.get('materials5'))
+    old_materials6_JSON = json.loads(request.cookies.get('materials6'))
+    old_materials29_JSON = json.loads(request.cookies.get('materials29'))
+    old_materials30_JSON = json.loads(request.cookies.get('materials30'))
+    old_materials37_JSON = json.loads(request.cookies.get('materials37'))
+    old_materials38_JSON = json.loads(request.cookies.get('materials38'))
+    old_materials46_JSON = json.loads(request.cookies.get('materials46'))
+    #old_materials6_JSON = session['materials6']
+    #old_materials29_JSON = session['materials29']
+    #old_materials30_JSON = session['materials30']
+    #old_materials37_JSON = session['materials37']
+    #old_materials38_JSON = session['materials38']
+    #old_materials46_JSON = session['materials46']
     
     new_wallet_JSON = getWallet(API2_URL, encoded_key)
     new_bank_JSON = get_bank(API2_URL, encoded_key)
     new_shared_JSON = getSharedInventory(API2_URL, encoded_key)
     new_materials_JSON = getMaterials(API2_URL, encoded_key)
-    
+    new_inventory_JSON = getAllInventory(API2_URL, encoded_key)
+    inventory_delta_list = []
     wallet_delta_list = []
     bank_delta_list = []
     shared_delta_list = []
@@ -110,6 +128,8 @@ def retake_snapshot():
     materials_delta_list2 = []
     for materials in materials_delta_list:
         materials_delta_list2.append(remove_zero_count(materials))
+    inventory_delta_list = compare_inventory(old_inventory_JSON, new_inventory_JSON)
+    inventory_delta_list = remove_zero_count(inventory_delta_list)
     
     wallet_delta_list = compare_wallet(old_wallet_JSON, new_wallet_JSON)
     wallet_delta_list = remove_zero_value(wallet_delta_list)
@@ -127,15 +147,10 @@ def retake_snapshot():
     for item in bank_delta_list:
         item['id'] = itemIDToName(API2_URL, item['id'])
     for item in shared_delta_list:
-        item['id'] = itemIDToName(API2_URL, item['id'])    
-    resp = make_response(render_template('results.html',materials_delta_list=materials_delta_list2, minutes_elapsed=minutes_elapsed, wallet_delta_list=wallet_delta_list, bank_delta_list=bank_delta_list, shared_delta_list=shared_delta_list))
-    session.pop('materials5', None)
-    session.pop('materials6', None)
-    session.pop('materials29', None)
-    session.pop('materials30', None)
-    session.pop('materials37', None)
-    session.pop('materials38', None)
-    session.pop('materials46', None)
+        item['id'] = itemIDToName(API2_URL, item['id'])
+    for item in inventory_delta_list:
+        item['id'] = itemIDToName(API2_URL, item['id'])
+    resp = make_response(render_template('results.html',materials_delta_list=materials_delta_list2, minutes_elapsed=minutes_elapsed, wallet_delta_list=wallet_delta_list, bank_delta_list=bank_delta_list, shared_delta_list=shared_delta_list, inventory=inventory_delta_list))
     return resp
 
 
