@@ -2,9 +2,9 @@ import urllib
 import urllib2
 import json
 import sys
-import credentials
 import filewriter
 import time
+import copy
 
 from pprint import pprint
 from listManipulation import *
@@ -16,7 +16,7 @@ from material import getMaterials, getMaterials2
 from app import models
 from app import app
 from flask import Blueprint, render_template, request, make_response, flash, session
-
+from tradingPost import getSellPrice
 API2_URL = 'https://api.guildwars2.com/v2'
 
 @app.route('/')
@@ -97,7 +97,16 @@ def retake_snapshot():
     shared_delta_list = remove_zero_count(shared_delta_list)
     bank_delta_list = remove_zero_count(bank_delta_list)
     materials_delta_list = remove_zero_count(materials_delta_list)
+    condensed_list = inventory_delta_list+shared_delta_list+bank_delta_list+materials_delta_list
     
+    condensed_list2 = copy.deepcopy(condensed_list)
+    condensed_list2 = compress_list(condensed_list2)
+    condensed_list2 = remove_zero_count(condensed_list2)
+    totalValue = 0
+    for item in condensed_list2:
+        value = getSellPrice(API2_URL, item['id'])
+        item['value'] = item['count']*value
+        totalValue += item['value']
     for currency in wallet_delta_list:
         currency['id'] = walletIDToName(API2_URL, currency['id'])
     for item in inventory_delta_list:
@@ -108,8 +117,11 @@ def retake_snapshot():
         item['id'] = itemIDToName(API2_URL, item['id'])
     for item in materials_delta_list:
         item['id'] = itemIDToName(API2_URL, item['id'])
-        
-    resp = make_response(render_template('results.html',materials_delta_list=materials_delta_list, minutes_elapsed=minutes_elapsed, wallet_delta_list=wallet_delta_list, bank_delta_list=bank_delta_list, shared_delta_list=shared_delta_list, inventory=inventory_delta_list))
+    for item in condensed_list2:
+        item['id'] = itemIDToName(API2_URL, item['id'])
+    zero_value_items = [zero_value_item for zero_value_item in condensed_list2 if zero_value_item['value'] == 0]
+    print zero_value_items
+    resp = make_response(render_template('results.html',materials_delta_list=materials_delta_list, minutes_elapsed=minutes_elapsed, wallet_delta_list=wallet_delta_list, bank_delta_list=bank_delta_list, shared_delta_list=shared_delta_list, inventory=inventory_delta_list, totals=condensed_list2, totalValue=totalValue))
     session.pop('wallet', None)
     session.pop('shared', None)
     session.pop('bank', None)

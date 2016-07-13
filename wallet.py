@@ -10,16 +10,19 @@ def getWallet(API2_URL, encoded_key):
     try:
         response = urllib2.urlopen(full_url)
         the_page = response.read()
+        wallet_data = json.loads(the_page)
+        return wallet_data
     except urllib2.HTTPError, err:
         if err.code == 403:
             print "Access denied!"
             return "Access denied!"
         else:
             print "Something happened! Error code", err.code
+            return "Some other error happened"
     except urllib2.URLError, err:
         print "Some other error happened:", err.reason
-    wallet_data = json.loads(the_page)
-    return wallet_data
+        return "Some other error happened: "
+    
 
 def walletIDToName(API2_URL, walletID):
     scope_url = '/currencies/'

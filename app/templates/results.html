@@ -3,8 +3,8 @@
 <div class="container">
     <div class="row">
         <h1>Items Gained/Lost in {{minutes_elapsed}} minutes</h1>
-        <h2>Wallet</h2>
-        <table class="table table-striped table-bordered table-hover">
+        <p>Wallet</p>
+        <table class="table table-striped table-bordered table-hover table-condensed">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -13,74 +13,29 @@
             </thead>
             <tbody> {% for item in wallet_delta_list %}
                 <tr>
-                    <td>{{item['id']}}</td>
-                    <td>{{item['value']}}</td>
+                    <td class=col-xs-8>{{item['id']}}</td>
+                    <td class=col-xs-4>{{item['value']}}</td>
                 </tr> {% endfor %} </tbody>
         </table>
     </div>
     <div class="row">
-        <h2>Bank</h2>
-        <table class="table table-striped table-bordered table-hover">
+        <p>Totals</p>
+        <table class="table table-striped table-bordered table-hover table-condensed">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Count</th>
+                    <th class=col-xs-6>ID</th>
+                    <th class=col-xs-3>Count</th>
+                    <th class=col-xs-3>Value</th>
                 </tr>
             </thead>
-            <tbody> {% for item in bank_delta_list %}
+            <tbody> {% for item in totals %}
                 <tr>
-                    <td>{{item['id']}}</td>
-                    <td>{{item['count']}}</td>
+                    <td class=col-xs-6>{{item['id']}}</td>
+                    <td class=col-xs-3>{{item['count']}}</td>
+                    <td class=col-xs-3>{{item['value']}}</td>
                 </tr> {% endfor %} </tbody>
         </table>
-    </div>
-    <div class="row">
-        <h2>Shared</h2>
-        <table class="table table-striped table-bordered table-hover">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Count</th>
-                </tr>
-            </thead>
-            <tbody> {% for item in shared_delta_list %}
-                <tr>
-                    <td>{{item['id']}}</td>
-                    <td>{{item['count']}}</td>
-                </tr> {% endfor %} </tbody>
-        </table>
-    </div>
-    <div class="row">
-        <h2>Materials</h2>
-        <table class="table table-striped table-bordered table-hover">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Count</th>
-                </tr>
-            </thead>
-            <tbody> {% for item in materials_delta_list %}
-                <tr>
-                    <td>{{item['id']}}</td>
-                    <td>{{item['count']}}</td>
-                </tr> {% endfor %}</tbody>
-        </table>
-    </div>
-    <div class="row">
-        <h2>Inventory</h2>
-        <table class="table table-striped table-bordered table-hover">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Count</th>
-                </tr>
-            </thead>
-            <tbody> {% for item in inventory %}
-                <tr>
-                    <td>{{item['id']}}</td>
-                    <td>{{item['count']}}</td>
-                </tr> {% endfor %} </tbody>
-        </table>
+        <p>Total value if sold: {{totalValue}}</p>
     </div>
 </div>
 <!-- /.container -->{% endblock %}
