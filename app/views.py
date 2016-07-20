@@ -121,7 +121,7 @@ def retake_snapshot():
         item['id'] = itemIDToName(API2_URL, item['id'])
     zero_value_items = [zero_value_item for zero_value_item in condensed_list2 if zero_value_item['value'] == 0]
     print zero_value_items
-    resp = make_response(render_template('results.html',materials_delta_list=materials_delta_list, minutes_elapsed=minutes_elapsed, wallet_delta_list=wallet_delta_list, bank_delta_list=bank_delta_list, shared_delta_list=shared_delta_list, inventory=inventory_delta_list, totals=condensed_list2, totalValue=totalValue))
+    resp = make_response(render_template('results.html',zero_value_items=zero_value_items, materials_delta_list=materials_delta_list, minutes_elapsed=minutes_elapsed, wallet_delta_list=wallet_delta_list, bank_delta_list=bank_delta_list, shared_delta_list=shared_delta_list, inventory=inventory_delta_list, totals=condensed_list2, totalValue=totalValue))
     session.pop('wallet', None)
     session.pop('shared', None)
     session.pop('bank', None)
