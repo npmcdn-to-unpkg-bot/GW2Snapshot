@@ -42,9 +42,16 @@ def get_snapshot():
     materialsJSON = getMaterials2(API2_URL, encoded_key)
     materials_data = json.dumps(materialsJSON)
     assert len(materials_data) < 20000
-    snapshot = models.Snapshot(request.form['apiKey'], inventory_data, materials_data)
-    models.db.session.add(snapshot)
-    models.db.session.commit()
+    exists = models.db.session.query(models.Snapshot.api_key).filter_by(api_key=request.form['apiKey']).scalar() is not None
+    if exists:
+        snapshot = models.Snapshot.query.filter_by(api_key=request.form['apiKey']).first_or_404()
+        snapshot.inventory = inventory_data
+        snapshot.materials = materials_data
+        models.db.session.commit()
+    else:
+        snapshot = models.Snapshot(request.form['apiKey'], inventory_data, materials_data)
+        models.db.session.add(snapshot)
+        models.db.session.commit()
     
     resp = make_response(render_template('snapshot.html'))
     resp.set_cookie('key', request.form['apiKey'])
@@ -68,9 +75,7 @@ def retake_snapshot():
     snapshot = models.Snapshot.query.filter_by(api_key=api_key).first_or_404()
     old_inventory_data = snapshot.inventory
     old_materials_data = snapshot.materials
-    
-    models.db.session.delete(snapshot)
-    models.db.session.commit()
+
     old_inventory_JSON = json.loads(old_inventory_data)
     old_materials_JSON = json.loads(old_materials_data)
     
@@ -110,15 +115,65 @@ def retake_snapshot():
     for currency in wallet_delta_list:
         currency['id'] = walletIDToName(API2_URL, currency['id'])
     for item in inventory_delta_list:
-        item['id'] = itemIDToName(API2_URL, item['id'])
+        exists = models.db.session.query(models.Item.name).filter_by(id=item['id']).scalar() is not None
+        if exists:
+            name = (models.Item.query.filter_by(id=item['id']).first_or_404()).name
+            item['id'] = name
+            print name + ' found'
+        else:
+            name = itemIDToName(API2_URL, item['id'])
+            dbItem = models.Item(item['id'], name)
+            models.db.session.add(dbItem)
+            models.db.session.commit()
+            item['id'] = name
     for item in shared_delta_list:
-        item['id'] = itemIDToName(API2_URL, item['id'])
+        exists = models.db.session.query(models.Item.name).filter_by(id=item['id']).scalar() is not None
+        if exists:
+            name = (models.Item.query.filter_by(id=item['id']).first_or_404()).name
+            item['id'] = name
+            print name + ' found'
+        else:
+            name = itemIDToName(API2_URL, item['id'])
+            dbItem = models.Item(item['id'], name)
+            models.db.session.add(dbItem)
+            models.db.session.commit()
+            item['id'] = name
     for item in bank_delta_list:
-        item['id'] = itemIDToName(API2_URL, item['id'])
+        exists = models.db.session.query(models.Item.name).filter_by(id=item['id']).scalar() is not None
+        if exists:
+            name = (models.Item.query.filter_by(id=item['id']).first_or_404()).name
+            item['id'] = name
+            print name + ' found'
+        else:
+            name = itemIDToName(API2_URL, item['id'])
+            dbItem = models.Item(item['id'], name)
+            models.db.session.add(dbItem)
+            models.db.session.commit()
+            item['id'] = name
     for item in materials_delta_list:
-        item['id'] = itemIDToName(API2_URL, item['id'])
+        exists = models.db.session.query(models.Item.name).filter_by(id=item['id']).scalar() is not None
+        if exists:
+            name = (models.Item.query.filter_by(id=item['id']).first_or_404()).name
+            item['id'] = name
+            print name + ' found'
+        else:
+            name = itemIDToName(API2_URL, item['id'])
+            dbItem = models.Item(item['id'], name)
+            models.db.session.add(dbItem)
+            models.db.session.commit()
+            item['id'] = name
     for item in condensed_list2:
-        item['id'] = itemIDToName(API2_URL, item['id'])
+        exists = models.db.session.query(models.Item.name).filter_by(id=item['id']).scalar() is not None
+        if exists:
+            name = (models.Item.query.filter_by(id=item['id']).first_or_404()).name
+            item['id'] = name
+            print name + ' found'
+        else:
+            name = itemIDToName(API2_URL, item['id'])
+            dbItem = models.Item(item['id'], name)
+            models.db.session.add(dbItem)
+            models.db.session.commit()
+            item['id'] = name
     zero_value_items = [zero_value_item for zero_value_item in condensed_list2 if zero_value_item['value'] == 0]
     print zero_value_items
     resp = make_response(render_template('results.html',zero_value_items=zero_value_items, materials_delta_list=materials_delta_list, minutes_elapsed=minutes_elapsed, wallet_delta_list=wallet_delta_list, bank_delta_list=bank_delta_list, shared_delta_list=shared_delta_list, inventory=inventory_delta_list, totals=condensed_list2, totalValue=totalValue))
