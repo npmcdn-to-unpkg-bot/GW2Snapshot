@@ -1,16 +1,18 @@
 {% extends "layout.html" %} {% block content %}
+<script type="text/babel" src="{{url_for('static', filename='index.js')}}"></script>
 <!-- Page Content -->
 <div class="container-fluid">
     <div class="row">
-        <p>Disclaimer: Each snapshot is inaccurate up to 5 mins. Do nothing for 5 mins before you take the first snapshot. Do nothing for 5 mins after your session and then take snapshot. Try clearing cookies if something breaks.</p>
+        <div id="disc"></div>
         <div class="text-center"> {% if error %}
-            <p class=error><strong>Error:</strong> {{ error }} {% endif %}
-                <form action="{{ url_for('get_snapshot') }}" method=post class=take-snapshot>
-                    <div class="form-group">
-                        <label for="apiKey" class="control-label">API Key</label>
-                        <input type="text" class="form-control" name="apiKey" id="apiKey" {% if 'key' in request.cookies %} value={{request.cookies[ 'key']}} {% endif %}> </div>
-                    <button type="submit" class="btn btn-primary">Take Snapshot</button>
-                </form>
+            <p class=error><strong>Error:</strong> {{ error }}</p> {% endif %}
+            <form action="{{ url_for('get_snapshot') }}" method=post class=take-snapshot>
+                <div class="form-group">
+                    <label for="apiKey" class="control-label">API Key</label>
+                    <input type="text" class="form-control" name="apiKey" id="apiKey" {% if 'key' in request.cookies %} value={{request.cookies[ 'key']}} {% endif %}> </div>
+                <button type="submit" name="submit" value="1st" class="btn btn-primary">Take 1st Snapshot</button>
+                <button type="submit" class="btn btn-primary" disabled="disabled">Take 2nd Snapshot</button>
+            <div id="fet"></div>
         </div>
     </div>
     <!-- /.row -->
