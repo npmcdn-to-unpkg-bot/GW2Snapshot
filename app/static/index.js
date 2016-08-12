@@ -12,7 +12,7 @@ function getCookie(name) {
 }
 
 var Disclaimer = React.createClass({
-    render: function() {
+    render: function () {
         return ( < div className = "disclaimer" >
             < p > Disclaimer: Each snapshot is inaccurate up to 5 mins.Do nothing
             for 5 mins before you take the first snapshot.Do nothing
@@ -21,10 +21,10 @@ var Disclaimer = React.createClass({
     }
 });
 
-ReactDOM.render( < Disclaimer / > , document.getElementById('disc'));
+
 
 var Button = React.createClass({
-    render: function() {
+    render: function () {
         return ( < span className = "buttonBeta" >
             < button type = "submit"
             name = "submit"
@@ -32,12 +32,12 @@ var Button = React.createClass({
             onClick = {
                 this.props.onClick
             }
-            className = "btn btn-primary" > Take 1st Snapshot Beta < /button>< /span > );
+            className = "btn btn-primary" > Take First Snapshot < /button>< /span > );
     }
 });
 
 var RetakeButton = React.createClass({
-    render: function() {
+    render: function () {
         return ( < span >
             < button type = "submit"
             name = "submit"
@@ -48,24 +48,24 @@ var RetakeButton = React.createClass({
             className = "btn btn-primary"
             disabled = {
                 !this.props.data
-            } > Take 2nd Snapshot Beta < /button>< /span > );
+            } > Take Second Snapshot < /button>< /span > );
     }
 });
 
 var CommentForm = React.createClass({
-    getInitialState: function() {
+    getInitialState: function () {
         return {
             button: '1',
             key: getCookie('key') ? getCookie('key') : '',
             submitted: ''
         };
     },
-    handleKeyChange: function(e) {
+    handleKeyChange: function (e) {
         this.setState({
             key: e.target.value
         });
     },
-    handleSubmit: function(e) {
+    handleSubmit: function (e) {
         e.preventDefault();
         var key = this.state.key.trim();
         if (!key) {
@@ -87,14 +87,14 @@ var CommentForm = React.createClass({
         });
     },
 
-    submit1: function() {
+    submit1: function () {
         {
             this.setState({
                 button: '1'
             })
         }
     },
-    submit2: function() {
+    submit2: function () {
         {
             this.setState({
                 button: '2'
@@ -102,7 +102,7 @@ var CommentForm = React.createClass({
         }
     },
 
-    render: function() {
+    render: function () {
         return ( < form className = "commentForm"
             onSubmit = {
                 this.handleSubmit
@@ -133,46 +133,46 @@ var CommentForm = React.createClass({
 }
 });
 
-var Fetch = React.createClass({
-    handleKeySubmit1: function(key) {
+var Form = React.createClass({
+    handleKeySubmit1: function (key) {
         $.ajax({
             url: "/asdf",
             dataType: 'text',
             cache: false,
             type: 'POST',
             data: key,
-            success: function(data) {
+            success: function (data) {
                 this.setState({
                     data: data
                 });
             }.bind(this),
-            error: function(xhr, status, err) {
+            error: function (xhr, status, err) {
                 console.error(this.props.url, status, err.toString());
             }.bind(this)
         });
     },
-    handleKeySubmit2: function(key) {
+    handleKeySubmit2: function (key) {
         $.ajax({
             url: "/results",
             cache: false,
             type: 'POST',
             dataType: 'html',
             data: key,
-            success: function(data) {
+            success: function (data) {
                 document.write(data);
             },
 
-            error: function(xhr, status, err) {
+            error: function (xhr, status, err) {
                 console.error(this.props.url, status, err.toString());
             }.bind(this)
         });
     },
-    getInitialState: function() {
+    getInitialState: function () {
         return {
             data: []
         };
     },
-    render: function() {
+    render: function () {
         return ( < div className = "commentBox" >
             < label className = "control-label" > API Key < /label> < CommentForm onCommentSubmit = {
             this.handleKeySubmit1
@@ -186,4 +186,5 @@ var Fetch = React.createClass({
 );
 }
 });
-ReactDOM.render( < Fetch / > , document.getElementById('fet'));
+ReactDOM.render( < Disclaimer / > , document.getElementById('disc'));
+ReactDOM.render( < Form / > , document.getElementById('form'));

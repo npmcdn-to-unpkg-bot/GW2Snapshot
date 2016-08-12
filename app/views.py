@@ -115,23 +115,17 @@ def retake_snapshot():
     old_inventory_JSON = json.loads(old_inventory_data)
     old_materials_JSON = json.loads(old_materials_data)
     
-    new_wallet_JSON = getWallet(API2_URL, encoded_key)
-    new_inventory_JSON = getAllInventory(API2_URL, encoded_key)
-    new_shared_JSON = getSharedInventory(API2_URL, encoded_key)
-    new_bank_JSON = get_bank(API2_URL, encoded_key)
-    new_materials_JSON = getMaterials2(API2_URL, encoded_key)
-    
-    wallet_delta_list = []
-    inventory_delta_list = []
-    shared_delta_list = []
-    bank_delta_list = []
-    materials_delta_list = []
-    
-    wallet_delta_list = compare_wallet(old_wallet_JSON, new_wallet_JSON)
-    inventory_delta_list = compare_inventory(old_inventory_JSON, new_inventory_JSON)
-    shared_delta_list = compare_inventory(old_shared_JSON, new_shared_JSON)
-    bank_delta_list = compare_inventory(old_bank_JSON, new_bank_JSON)
-    materials_delta_list = compare_inventory(old_materials_JSON, new_materials_JSON)
+    new_wallet_json = getWallet(API2_URL, encoded_key)
+    new_inventory_json = getAllInventory(API2_URL, encoded_key)
+    new_shared_json = getSharedInventory(API2_URL, encoded_key)
+    new_bank_json = get_bank(API2_URL, encoded_key)
+    new_materials_json = getMaterials2(API2_URL, encoded_key)
+
+    wallet_delta_list = compare_wallet(old_wallet_JSON, new_wallet_json)
+    inventory_delta_list = compare_inventory(old_inventory_JSON, new_inventory_json)
+    shared_delta_list = compare_inventory(old_shared_JSON, new_shared_json)
+    bank_delta_list = compare_inventory(old_bank_JSON, new_bank_json)
+    materials_delta_list = compare_inventory(old_materials_JSON, new_materials_json)
     
     wallet_delta_list = remove_zero_value(wallet_delta_list)
     inventory_delta_list = remove_zero_count(inventory_delta_list)
