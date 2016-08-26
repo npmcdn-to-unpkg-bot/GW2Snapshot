@@ -4,7 +4,9 @@ import json
 
 from pprint import pprint
 
-def getSellPrice(API2_URL, id):
+API2_URL = 'https://api.guildwars2.com/v2'
+
+def getSellPrice(id):
     full_url = API2_URL + '/commerce/prices/' + str(id)
     try:
         response = urllib2.urlopen(full_url)
@@ -16,3 +18,6 @@ def getSellPrice(API2_URL, id):
         return 0
     return price
 
+def add_sell_price_to_item(item):
+    value = getSellPrice(item['id'])
+    item['value'] = item['count'] * value

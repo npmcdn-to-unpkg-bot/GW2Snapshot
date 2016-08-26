@@ -4,6 +4,9 @@ import json
 
 from listManipulation import compress_list, remove_zero_count
 from pprint import pprint
+from app import models
+
+API2_URL = 'https://api.guildwars2.com/v2'
 
 def getInventory(API2_URL, encoded_key, character):
     character = urllib.quote(character)
@@ -76,9 +79,23 @@ def getCharacterNames(API2_URL, encoded_key):
     the_page = response.read()
     character_names = json.loads(the_page)
     return character_names
-    
+
 def getAllInventory2(API2_URL, encoded_key, character_names):
     inventory = []
     for character in character_names:
         inventory.append(getInventory(API2_URL, encoded_key, character))
     return inventory
+
+
+def add_name_to_item(item):
+    exists = models.db.session.query(models.Item.name).filter_by(id=item['id']).scalar() is not None
+    if exists:
+        name = (models.Item.query.filter_by(id=item['id']).first_or_404()).name
+        item['name'] = name
+    else:
+        name = itemIDToName(API2_URL, item['id'])
+        db_item = models.Item(item['id'], name)
+        models.db.session.add(db_item)
+        models.db.session.commit()
+        item['name'] = name
+    models.db.session.close()

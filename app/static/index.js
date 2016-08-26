@@ -136,7 +136,7 @@ var CommentForm = React.createClass({
 var Form = React.createClass({
     handleKeySubmit1: function (key) {
         $.ajax({
-            url: "/asdf",
+            url: "/snapshot",
             dataType: 'text',
             cache: false,
             type: 'POST',

@@ -1,7 +1,10 @@
 import urllib
 import urllib2
 import json
+from app import models
 from pprint import pprint
+
+API2_URL = 'https://api.guildwars2.com/v2'
 
 def getWallet(API2_URL, encoded_key):
     scope_url = '/account/wallet'
@@ -31,5 +34,16 @@ def walletIDToName(API2_URL, walletID):
     the_page = response.read()
     currencyJSON = json.loads(the_page)
     return currencyJSON['name']
-    
-        
+
+def add_name_to_currency(currency):
+    exists = models.db.session.query(models.Currency.name).filter_by(id=currency['id']).scalar() is not None
+    if exists:
+        name = (models.Currency.query.filter_by(id=currency['id']).first_or_404()).name
+        currency['name'] = name
+    else:
+        name = walletIDToName(API2_URL, currency['id'])
+        db_currency = models.Currency(currency['id'], name)
+        models.db.session.add(db_currency)
+        models.db.session.commit()
+        currency['name'] = name
+    models.db.session.close()
