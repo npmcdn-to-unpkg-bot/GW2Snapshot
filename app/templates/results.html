@@ -11,10 +11,10 @@
                     <th>Count</th>
                 </tr>
             </thead>
-            <tbody> {% for item in wallet_delta_list %}
+            <tbody> {% for currency in wallet_delta_list %}
                 <tr>
-                    <td class=col-xs-8>{{item['id']}}</td>
-                    <td class=col-xs-4>{{item['value']}}</td>
+                    <td class=col-xs-8>{{currency['name']}}</td>
+                    <td class=col-xs-4>{{currency['value']}}</td>
                 </tr> {% endfor %} </tbody>
         </table>
     </div>
